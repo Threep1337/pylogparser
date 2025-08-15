@@ -2,6 +2,7 @@
 # Replace this with argparse later
 # https://www.geeksforgeeks.org/python/command-line-arguments-in-python/
 import sys
+import argparse
 
 # First goal is to just extract text from the log file and print out log lines
 # Worry about making it more complex afterwards
@@ -10,13 +11,22 @@ import sys
 # Later on I can deal with ingesting the logs into a database.
 
 
+# First basic goal should be to parse a file containing only one message, and create a list of objects that represent entries
+
 def main():
-    if len(sys.argv) < 2:
-        print ("Usage: python main.py logfile")
-        sys.exit
+
+    msg = "Python Postfix log parser"
+
+    parser = argparse.ArgumentParser(description=msg)
+
+    parser.add_argument("-l", "--Logfile", help = "Path to the log file to parse")
+    args = parser.parse_args()
+
+
+    if args.Logfile:
+        print(f"the passed in log file is {args.Logfile}")
     
-    print(f"Going to open {sys.argv[1]}")
-    with open(sys.argv[1]) as f:
+    with open(args.Logfile) as f:
         file_contents = f.read()
         f.close()
     #print(f"{file_contents}")
