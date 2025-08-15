@@ -1,0 +1,45 @@
+2025-08-07T20:04:54.826267-04:00 MAILSERVER01 postfix/smtpd[258263]: SSL_accept error from SOMEOTHERSERVER.myinternaldomain.int[10.10.16.140]: -1
+2025-08-07T20:04:54.826317-04:00 MAILSERVER01 postfix/smtpd[258263]: warning: TLS library problem: error:0A0000C1:SSL routines::no shared cipher:../ssl/statem/statem_srvr.c:1742:
+2025-08-07T20:04:54.826344-04:00 MAILSERVER01 postfix/smtpd[258263]: lost connection after STARTTLS from SOMEOTHERSERVER.myinternaldomain.int[10.10.16.140]
+2025-08-07T20:04:54.826428-04:00 MAILSERVER01 postfix/smtpd[258263]: disconnect from SOMEOTHERSERVER.myinternaldomain.int[10.10.16.140] ehlo=1 starttls=0/1 commands=1/2
+2025-08-07T20:04:54.832984-04:00 MAILSERVER01 postfix/smtpd[258267]: connect from SOMEOTHERSERVER.myinternaldomain.int[10.10.16.140]
+2025-08-07T20:04:54.840108-04:00 MAILSERVER01 postfix/smtpd[258267]: lost connection after STARTTLS from SOMEOTHERSERVER.myinternaldomain.int[10.10.16.140]
+2025-08-07T20:04:54.840178-04:00 MAILSERVER01 postfix/smtpd[258267]: disconnect from SOMEOTHERSERVER.myinternaldomain.int[10.10.16.140] ehlo=1 starttls=1 commands=2
+2025-08-12T15:52:06.689288-04:00 MAILSERVER01 postfix/smtpd[300404]: connect from CLIENTSERVER.myinternaldomain.int[10.10.16.185]
+2025-08-12T15:52:06.706150-04:00 MAILSERVER01 postfix/smtpd[300404]: AC4A52E0144: client=CLIENTSERVER.myinternaldomain.int[10.10.16.185]
+2025-08-12T15:52:06.709489-04:00 MAILSERVER01 postfix/cleanup[300407]: AC4A52E0144: warning: header Subject: this is a relay test message from CLIENTSERVER.myinternaldomain.int[10.10.16.185]; from=<someoneelse@mailrelay.onmicrosoft.com> to=<someone@gmail.com> proto=ESMTP helo=<CLIENTSERVER>
+2025-08-12T15:52:06.709615-04:00 MAILSERVER01 postfix/cleanup[300407]: AC4A52E0144: message-id=<>
+2025-08-12T15:52:06.711811-04:00 MAILSERVER01 postfix/qmgr[15318]: AC4A52E0144: from=<someoneelse@mailrelay.onmicrosoft.com>, size=384, nrcpt=1 (queue active)
+2025-08-12T15:52:10.094747-04:00 MAILSERVER01 postfix/smtp[300408]: AC4A52E0144: to=<someone@gmail.com>, relay=mailrelay.mail.protection.outlook.com[52.101.192.0]:25, delay=3.4, delays=0.01/0.05/0.36/3, dsn=2.6.0, status=sent (250 2.6.0 <c75e212f-1178-4889-9b46-e88ff354662e@QB1PEPF00004E07.CANPRD01.PROD.OUTLOOK.COM> [InternalId=42962557880819, Hostname=YT1PR01MB8233.CANPRD01.PROD.OUTLOOK.COM] 10154 bytes in 0.220, 45.063 KB/sec Queued mail for delivery)
+2025-08-12T15:52:10.095155-04:00 MAILSERVER01 postfix/qmgr[15318]: AC4A52E0144: removed
+2025-08-12T15:53:46.628170-04:00 MAILSERVER01 postfix/smtpd[300404]: disconnect from CLIENTSERVER.myinternaldomain.int[10.10.16.185] ehlo=1 mail=1 rcpt=1 data=1 quit=1 commands=5
+2025-08-12T15:53:55.092617-04:00 MAILSERVER01 postfix/postqueue[300445]: fatal: usage: postqueue -f | postqueue -i queueid | postqueue -j | postqueue -p | postqueue -s site
+2025-08-12T15:54:00.000836-04:00 MAILSERVER01 postfix/postqueue[300447]: fatal: usage: postqueue -f | postqueue -i queueid | postqueue -j | postqueue -p | postqueue -s site
+2025-08-12T15:54:02.076688-04:00 MAILSERVER01 postfix/postqueue[300448]: fatal: usage: postqueue -f | postqueue -i queueid | postqueue -j | postqueue -p | postqueue -s site
+2025-08-12T15:54:04.970965-04:00 MAILSERVER01 postfix/postqueue[300449]: fatal: usage: postqueue -f | postqueue -i queueid | postqueue -j | postqueue -p | postqueue -s site
+2025-08-12T15:54:09.457029-04:00 MAILSERVER01 postfix/postqueue[300451]: fatal: usage: postqueue -f | postqueue -i queueid | postqueue -j | postqueue -p | postqueue -s site
+2025-08-12T15:57:50.074133-04:00 MAILSERVER01 postfix/smtpd[300505]: connect from CLIENTSERVER.myinternaldomain.int[10.10.16.185]
+2025-08-12T15:57:50.089735-04:00 MAILSERVER01 postfix/smtpd[300505]: 15D7C2E0144: client=CLIENTSERVER.myinternaldomain.int[10.10.16.185]
+2025-08-12T15:57:50.091247-04:00 MAILSERVER01 postfix/cleanup[300511]: 15D7C2E0144: warning: header Subject: this is a relay test message from myself from CLIENTSERVER.myinternaldomain.int[10.10.16.185]; from=<someoneelse@mailrelay.onmicrosoft.com> to=<someoneelse@mailrelay.onmicrosoft.com> proto=ESMTP helo=<CLIENTSERVER>
+2025-08-12T15:57:50.091359-04:00 MAILSERVER01 postfix/cleanup[300511]: 15D7C2E0144: message-id=<>
+2025-08-12T15:57:50.094304-04:00 MAILSERVER01 postfix/qmgr[15318]: 15D7C2E0144: from=<someoneelse@mailrelay.onmicrosoft.com>, size=426, nrcpt=1 (queue active)
+2025-08-12T15:57:53.836187-04:00 MAILSERVER01 postfix/smtp[300512]: 15D7C2E0144: to=<someoneelse@mailrelay.onmicrosoft.com>, relay=mailrelay.mail.protection.outlook.com[52.101.192.0]:25, delay=3.8, delays=0.01/0.05/1.3/2.4, dsn=2.6.0, status=sent (250 2.6.0 <1c9a7d0a-d84f-4d58-8c9b-66999163966a@QB1PEPF00004E09.CANPRD01.PROD.OUTLOOK.COM> [InternalId=1589137918343, Hostname=TO1PPF351B62881.CANPRD01.PROD.OUTLOOK.COM] 10007 bytes in 0.339, 28.747 KB/sec Queued mail for delivery)
+2025-08-12T15:57:53.836620-04:00 MAILSERVER01 postfix/qmgr[15318]: 15D7C2E0144: removed
+2025-08-12T15:58:31.014893-04:00 MAILSERVER01 postfix/smtpd[300505]: 030682E0144: client=CLIENTSERVER.myinternaldomain.int[10.10.16.185]
+2025-08-12T15:58:31.017673-04:00 MAILSERVER01 postfix/cleanup[300511]: 030682E0144: warning: header Subject: this is a relay test message from myself again from CLIENTSERVER.myinternaldomain.int[10.10.16.185]; from=<someoneelse@mailrelay.onmicrosoft.com> to=<someoneelse@mailrelay.onmicrosoft.com> proto=ESMTP helo=<CLIENTSERVER>
+2025-08-12T15:58:31.017878-04:00 MAILSERVER01 postfix/cleanup[300511]: 030682E0144: message-id=<>
+2025-08-12T15:58:31.020353-04:00 MAILSERVER01 postfix/qmgr[15318]: 030682E0144: from=<someoneelse@mailrelay.onmicrosoft.com>, size=555, nrcpt=1 (queue active)
+2025-08-12T15:58:34.004410-04:00 MAILSERVER01 postfix/smtp[300512]: 030682E0144: to=<someoneelse@mailrelay.onmicrosoft.com>, relay=mailrelay.mail.protection.outlook.com[52.101.192.1]:25, delay=3, delays=0.01/0/0.34/2.6, dsn=2.6.0, status=sent (250 2.6.0 <88a0f278-eaac-455a-b4da-7cd76001cbda@QB1PEPF00004E0F.CANPRD01.PROD.OUTLOOK.COM> [InternalId=30910879658517, Hostname=YT2PR01MB8376.CANPRD01.PROD.OUTLOOK.COM] 10559 bytes in 0.244, 42.155 KB/sec Queued mail for delivery)
+2025-08-12T15:58:34.005258-04:00 MAILSERVER01 postfix/qmgr[15318]: 030682E0144: removed
+2025-08-12T15:58:42.993526-04:00 MAILSERVER01 postfix/smtpd[300505]: F23532E0144: client=CLIENTSERVER.myinternaldomain.int[10.10.16.185]
+2025-08-12T15:58:42.994203-04:00 MAILSERVER01 postfix/cleanup[300511]: F23532E0144: warning: header Subject: this is a relay test message from myself again from CLIENTSERVER.myinternaldomain.int[10.10.16.185]; from=<someoneelse@mailrelay.onmicrosoft.com> to=<someone@gmail.com> proto=ESMTP helo=<CLIENTSERVER>
+2025-08-12T15:58:42.994274-04:00 MAILSERVER01 postfix/cleanup[300511]: F23532E0144: message-id=<>
+2025-08-12T15:58:42.997352-04:00 MAILSERVER01 postfix/qmgr[15318]: F23532E0144: from=<someoneelse@mailrelay.onmicrosoft.com>, size=525, nrcpt=1 (queue active)
+2025-08-12T15:58:46.979095-04:00 MAILSERVER01 postfix/smtp[300512]: F23532E0144: to=<someone@gmail.com>, relay=mailrelay.mail.protection.outlook.com[52.101.190.3]:25, delay=4, delays=0.01/0/0.31/3.7, dsn=2.6.0, status=sent (250 2.6.0 <7b2cedf4-ca0c-491a-9ff0-687561418452@YT1PEPF00001E8A.CANPRD01.PROD.OUTLOOK.COM> [InternalId=20834886377608, Hostname=YT3PR01MB6550.CANPRD01.PROD.OUTLOOK.COM] 10795 bytes in 0.701, 15.034 KB/sec Queued mail for delivery)
+2025-08-12T15:58:46.979334-04:00 MAILSERVER01 postfix/qmgr[15318]: F23532E0144: removed
+2025-08-12T15:59:16.005015-04:00 MAILSERVER01 postfix/smtpd[300505]: 00F372E0144: client=CLIENTSERVER.myinternaldomain.int[10.10.16.185]
+2025-08-12T15:59:16.007189-04:00 MAILSERVER01 postfix/cleanup[300511]: 00F372E0144: warning: header Subject: this is a relay test message from myself again number 3 from CLIENTSERVER.myinternaldomain.int[10.10.16.185]; from=<someoneelse@mailrelay.onmicrosoft.com> to=<someone@gmail.com> proto=ESMTP helo=<CLIENTSERVER>
+2025-08-12T15:59:16.007382-04:00 MAILSERVER01 postfix/cleanup[300511]: 00F372E0144: message-id=<>
+2025-08-12T15:59:16.010054-04:00 MAILSERVER01 postfix/qmgr[15318]: 00F372E0144: from=<someoneelse@mailrelay.onmicrosoft.com>, size=534, nrcpt=1 (queue active)
+2025-08-12T15:59:19.040312-04:00 MAILSERVER01 postfix/smtp[300512]: 00F372E0144: to=<someone@gmail.com>, relay=mailrelay.mail.protection.outlook.com[52.101.190.0]:25, delay=3, delays=0.01/0/1.3/1.7, dsn=2.6.0, status=sent (250 2.6.0 <23e91145-68be-452d-a948-742d38f3d5a5@TO1PEPF00005346.CANPRD01.PROD.OUTLOOK.COM> [InternalId=24472723679753, Hostname=YT2PR01MB9875.CANPRD01.PROD.OUTLOOK.COM] 10786 bytes in 0.264, 39.894 KB/sec Queued mail for delivery)
+2025-08-12T15:59:19.041707-04:00 MAILSERVER01 postfix/qmgr[15318]: 00F372E0144: removed
