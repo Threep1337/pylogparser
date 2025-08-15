@@ -1,0 +1,6 @@
+2025-08-12T15:59:16.005015-04:00 MAILSERVER01 postfix/smtpd[300505]: 00F372E0144: client=CLIENTSERVER.myinternaldomain.int[10.10.16.185]
+2025-08-12T15:59:16.007189-04:00 MAILSERVER01 postfix/cleanup[300511]: 00F372E0144: warning: header Subject: this is a relay test message from myself again number 3 from CLIENTSERVER.myinternaldomain.int[10.10.16.185]; from=<someoneelse@mailrelay.onmicrosoft.com> to=<someone@gmail.com> proto=ESMTP helo=<CLIENTSERVER>
+2025-08-12T15:59:16.007382-04:00 MAILSERVER01 postfix/cleanup[300511]: 00F372E0144: message-id=<>
+2025-08-12T15:59:16.010054-04:00 MAILSERVER01 postfix/qmgr[15318]: 00F372E0144: from=<someoneelse@mailrelay.onmicrosoft.com>, size=534, nrcpt=1 (queue active)
+2025-08-12T15:59:19.040312-04:00 MAILSERVER01 postfix/smtp[300512]: 00F372E0144: to=<someone@gmail.com>, relay=mailrelay.mail.protection.outlook.com[52.101.190.0]:25, delay=3, delays=0.01/0/1.3/1.7, dsn=2.6.0, status=sent (250 2.6.0 <23e91145-68be-452d-a948-742d38f3d5a5@TO1PEPF00005346.CANPRD01.PROD.OUTLOOK.COM> [InternalId=24472723679753, Hostname=YT2PR01MB9875.CANPRD01.PROD.OUTLOOK.COM] 10786 bytes in 0.264, 39.894 KB/sec Queued mail for delivery)
+2025-08-12T15:59:19.041707-04:00 MAILSERVER01 postfix/qmgr[15318]: 00F372E0144: removed
