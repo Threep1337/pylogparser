@@ -1,19 +1,15 @@
-
-# Replace this with argparse later
 # https://www.geeksforgeeks.org/python/command-line-arguments-in-python/
-import sys
 import argparse
 import re
 
-# First goal is to just extract text from the log file and print out log lines
-# Worry about making it more complex afterwards
-# I think I will need to use regular expressions to extract the fields from the log lines.
-# I will also need to take arguments into the script call that point to the file
-# Later on I can deal with ingesting the logs into a database.
-
-
-# First basic goal should be to parse a file containing only one message, 
-# and create a list of objects that represent entries
+# Next steps:
+# refactor current code
+# create legEntry instances for each log line found and put them into a list
+# take the hardcoded regex logic out of the code somehow, so the regex and the group field to capture
+# Add a unit test that takes a known input text source and makes sure the created logentries match it
+# add a verbose flag or something so i can print the debug messages without commenting them out
+# there is a built in logging module (import logging) that i could use for this, or just a simple function that prints
+# if the verbose flag is set 
 
 
 # Here is some AI generated program outline:
@@ -41,8 +37,6 @@ import re
 # - SearchEngine finds matches
 # - Results printed/output
 
-
-
 def main():
 
     msg = "Python Postfix log parser"
@@ -52,85 +46,85 @@ def main():
     parser.add_argument("-l", "--Logfile", help = "Path to the log file to parse")
     args = parser.parse_args()
 
-
-    if args.Logfile:
-        print(f"the passed in log file is {args.Logfile}")
+    # if args.Logfile:
+    #     print(f"the passed in log file is {args.Logfile}")
     
-    #here i can either read the whole log or iterate through it line by line
+    # Here i can either read the whole log or iterate through it line by line
     with open(args.Logfile) as f:
         lines = f.readlines()
-    #print(f"{file_contents}")
-
-    #Extract the message ID in the line
-    #Message IDs are 11 characters and look to contain 0-9 and A-F
-    #[0-9,A-F]{11}
-
-    #Client name
-    #Client IP
-    #Extract from the capture groups
-    #(?<=client=)([^[]+)\[([^]]+)
-
-    #subject
-    #(?<=Subject: ).+(?= from.+\[.+\])
-
-    #from
-    # (?<=[0-9,A-F]{11}: from=<)[^>]+
-    #to
-    #(?<=[0-9,A-F]{11}: to=<)[^>]+
-
-    #status
-    # (?<=status=)[^ ]+
-
-    #Mail server name
-
-    #^[^ ]+\s([^ ]+)
     
     # If a message ID is found, all subsequent lines will contain the message ID
     # the next line that doesn't is a different entry
     currentMessageId = None
+    currentMessage={}
     for line in lines:
-        #This is bad, I can't assume group 0 will exist, i first need to do the regex, then test if it found anything
-        messageID = re.search("[0-9,A-F]{11}",line).group(0)
-        if messageID == currentMessageId:
-            print(f"Found current message id {messageID}")
+        messageID = None
+        messageIDSearch = re.search("[0-9,A-F]{11}",line)
+
+        if messageIDSearch:
+            messageID=messageIDSearch.group(0)
+
+        if messageID and messageID == currentMessageId:
+            #print(f"Found current message id {messageID}")
             
             subject = re.search("(?<=Subject: ).+(?= from.+\[.+\])",line)
             if (subject):
-                print (f"Found subject: {subject.group(0)}")
+                #print (f"Found subject: {subject.group(0)}")
+                currentMessage["subject"] = subject.group(0)
+                
 
             sender = re.search("(?<=[0-9,A-F]{11}: from=<)[^>]+",line)
             if (sender):
-                print (f"Found sender: {sender.group(0)}")
+                #print (f"Found sender: {sender.group(0)}")
+                currentMessage["sender"] = sender.group(0)
             
             
             recipient = re.search("(?<=[0-9,A-F]{11}: to=<)[^>]+",line)
             if (recipient):
-                print (f"Found recipient: {recipient.group(0)}")
+                #print (f"Found recipient: {recipient.group(0)}")
+                currentMessage["recipient"] = recipient.group(0)
 
             status = re.search("(?<=status=)[^ ]+",line)
             if (status):
-                print (f"Found status: {status.group(0)}")
+                #print (f"Found status: {status.group(0)}")
+                currentMessage["status"] = status.group(0)
 
             protocol = re.search("(?<=proto=)[^ ]+",line)
             if (protocol):
-                print (f"Found protocol: {protocol.group(0)}")
+                #print (f"Found protocol: {protocol.group(0)}")
+                currentMessage["protocol"] = protocol.group(0)
 
         elif messageID:
-            print(f"Found new message id {messageID}")
+            #print(f"Found new message id {messageID}")
+            if currentMessageId:
+                print("Message found is:")
+                print(currentMessage)
+
             currentMessageId = messageID
+            currentMessage["messageID"] = messageID
+
+            timeInfo = re.search("^[^ ]+",line)
+            if (timeInfo):
+                time = timeInfo.group(0)
+                currentMessage["time"] = time
+
             clientInfo = re.search("(?<=client=)([^[]+)\[([^]]+)",line)
             if (clientInfo):
                 clientName = clientInfo.group(1)
                 clientIP = clientInfo.group(2)
-                print (f"Found client named {clientName} with IP {clientIP}")
+                #print (f"Found client named {clientName} with IP {clientIP}")
+                currentMessage["clientName"] = clientName
+                currentMessage["clientIP"] = clientIP
             mailServer = re.search("^[^ ]+\s([^ ]+)",line)
             if (mailServer):
-                print (f"Found mailServer: {mailServer.group(1)}")
+                #print (f"Found mailServer: {mailServer.group(1)}")
+                currentMessage["mailServer"] = mailServer.group(1)
         else:
+            #print("Found a line with no message ID on it, skipping it...")
             pass
             
-
-
+    print("Message found is:")
+    print(currentMessage)
 
 if __name__ == '__main__':
     main()

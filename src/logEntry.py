@@ -1,7 +1,7 @@
 
 class logEntry:
 
-    def __init__(self,messageID,mailServer,clientName,clientIP,subject,sender,recipient,status,protocol):
+    def __init__(self,messageID,time,mailServer,clientName,clientIP,subject,sender,recipient,status,protocol):
         pass
 
     def __repr__(self):
