@@ -54,11 +54,10 @@ def main():
     if args.Logfile:
         print(f"the passed in log file is {args.Logfile}")
     
+    #here i can either read the whole log or iterate through it line by line
     with open(args.Logfile) as f:
-        file_contents = f.read()
-        f.close()
+        lines = f.readlines()
     #print(f"{file_contents}")
-    lines = file_contents.splitlines()
 
     x=0
     for line in lines:
