@@ -7,9 +7,6 @@ from logParser import logParser
 from logEntry import logEntry
 
 # Next steps:
-# Add back in parsing for fields client and client ip, and mailserver, originaly i use capture groups in a regex
-# and then got field 1, but the re-factored logParser doesn't have that functionality yet, so either add it
-# or redo the regexes so only the exact part I want matches
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
 # add a verbose flag or something so i can print the debug messages without commenting them out
 # there is a built in logging module (import logging) that i could use for this, or just a simple function that prints
@@ -60,8 +57,10 @@ def main():
         logField("Recipient", "(?<=[0-9,A-F]{11}: to=<)[^>]+"),
         logField("Status", "(?<=status=)[^ ]+"),
         logField("Protocol", "(?<=proto=)[^ ]+"),
-        logField("DateTime", "^[^ ]+")
-        
+        logField("DateTime", "^[^ ]+"),
+        logField("MailServer", "(?<=^.{32}\s)[^ ]+"),
+        logField("ClientName", "(?<=client=)([^[]+)\[([^]]+)",1),
+        logField("ClientIP", "(?<=client=)([^[]+)\[([^]]+)",2)
     ]
 
     postfixLogParser = logParser(indexField,logFields)

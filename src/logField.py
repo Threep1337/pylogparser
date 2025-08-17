@@ -1,9 +1,10 @@
 
 class logField:
 
-    def __init__(self,name,captureRegex):
+    def __init__(self,name,captureRegex,regexMatchGroup=0):
         self.name = name
         self.captureRegex = captureRegex
+        self.regexMatchGroup = regexMatchGroup
     
 
 def main():

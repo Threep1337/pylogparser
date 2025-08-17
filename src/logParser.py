@@ -37,7 +37,7 @@ class logParser:
                         logFieldSearch = re.search(logField.captureRegex,line)
 
                         if logFieldSearch:
-                            logFieldValue=logFieldSearch.group(0)
+                            logFieldValue=logFieldSearch.group(logField.regexMatchGroup)
                             #print (f"found log field value {logField}")
                             self.logEntries[logIdentifier].fields[logField.name] = logFieldValue
                     else:
