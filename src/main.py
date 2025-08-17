@@ -4,13 +4,25 @@ import re
 
 # Next steps:
 # refactor current code
-# create legEntry instances for each log line found and put them into a list
-# take the hardcoded regex logic out of the code somehow, so the regex and the group field to capture
+# create logEntry instances for each log line found and put them into a list
+# take the hardcoded regex logic out of the code somehow, so the regex and the field to capture
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
 # add a verbose flag or something so i can print the debug messages without commenting them out
 # there is a built in logging module (import logging) that i could use for this, or just a simple function that prints
 # if the verbose flag is set 
 
+# Cant assume that log entries for a particular messageId are all on adjacent lines
+# so message ID is the only way to tie them together
+# Maybe make the fields and the regexes to find them be part of an object?  so like subject,TheRegex
+# Maybe a log entry is a collection of log fields, and each log field has a name and a regex to capture it?
+# one of the fields is the identifier field, the rest is other fields, so a single item and a list of items
+# log entry can have an isComplete method that checks if all of the fields have values
+
+## No, log entry should not have any parse logic in it.
+# make a log parser class that has an identifier logfield, and a list of other fields
+# on every line, run the regex check for the identifier field, then check if a log entry already exists for the identifier
+# if it does, skip checking the other fields if they already have a value, so it minimizes the regex calls
+# the log parser can create log entries and maintains a list of them while it parses a log
 
 # Here is some AI generated program outline:
 
