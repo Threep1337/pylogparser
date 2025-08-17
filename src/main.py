@@ -2,6 +2,10 @@
 import argparse
 import re
 
+from logField import logField
+from logParser import logParser
+from logEntry import logEntry
+
 # Next steps:
 # refactor current code
 # create logEntry instances for each log line found and put them into a list
@@ -58,85 +62,23 @@ def main():
     parser.add_argument("-l", "--Logfile", help = "Path to the log file to parse")
     args = parser.parse_args()
 
-    # if args.Logfile:
-    #     print(f"the passed in log file is {args.Logfile}")
-    
-    # Here i can either read the whole log or iterate through it line by line
-    with open(args.Logfile) as f:
-        lines = f.readlines()
-    
-    # If a message ID is found, all subsequent lines will contain the message ID
-    # the next line that doesn't is a different entry
-    currentMessageId = None
-    currentMessage={}
-    for line in lines:
-        messageID = None
-        messageIDSearch = re.search("[0-9,A-F]{11}",line)
 
-        if messageIDSearch:
-            messageID=messageIDSearch.group(0)
+    #Create the log fields that I want to parse
+    #Going to need to do something different for client and client ip, and mailserver
+    indexField = logField("MessageID", "[0-9,A-F]{11}")
+    logFields = [
+        logField("Subject", "(?<=Subject: ).+(?= from.+\[.+\])"),
+        logField("Sender", "(?<=[0-9,A-F]{11}: from=<)[^>]+"),
+        logField("Recipient", "(?<=[0-9,A-F]{11}: to=<)[^>]+"),
+        logField("Status", "(?<=status=)[^ ]+"),
+        logField("Protocol", "(?<=proto=)[^ ]+"),
+        logField("DateTime", "^[^ ]+")
+        
+    ]
 
-        if messageID and messageID == currentMessageId:
-            #print(f"Found current message id {messageID}")
-            
-            subject = re.search("(?<=Subject: ).+(?= from.+\[.+\])",line)
-            if (subject):
-                #print (f"Found subject: {subject.group(0)}")
-                currentMessage["subject"] = subject.group(0)
-                
+    postfixLogParser = logParser(indexField,logFields)
+    postfixLogParser.parseLog(args.Logfile)
 
-            sender = re.search("(?<=[0-9,A-F]{11}: from=<)[^>]+",line)
-            if (sender):
-                #print (f"Found sender: {sender.group(0)}")
-                currentMessage["sender"] = sender.group(0)
-            
-            
-            recipient = re.search("(?<=[0-9,A-F]{11}: to=<)[^>]+",line)
-            if (recipient):
-                #print (f"Found recipient: {recipient.group(0)}")
-                currentMessage["recipient"] = recipient.group(0)
-
-            status = re.search("(?<=status=)[^ ]+",line)
-            if (status):
-                #print (f"Found status: {status.group(0)}")
-                currentMessage["status"] = status.group(0)
-
-            protocol = re.search("(?<=proto=)[^ ]+",line)
-            if (protocol):
-                #print (f"Found protocol: {protocol.group(0)}")
-                currentMessage["protocol"] = protocol.group(0)
-
-        elif messageID:
-            #print(f"Found new message id {messageID}")
-            if currentMessageId:
-                print("Message found is:")
-                print(currentMessage)
-
-            currentMessageId = messageID
-            currentMessage["messageID"] = messageID
-
-            timeInfo = re.search("^[^ ]+",line)
-            if (timeInfo):
-                time = timeInfo.group(0)
-                currentMessage["time"] = time
-
-            clientInfo = re.search("(?<=client=)([^[]+)\[([^]]+)",line)
-            if (clientInfo):
-                clientName = clientInfo.group(1)
-                clientIP = clientInfo.group(2)
-                #print (f"Found client named {clientName} with IP {clientIP}")
-                currentMessage["clientName"] = clientName
-                currentMessage["clientIP"] = clientIP
-            mailServer = re.search("^[^ ]+\s([^ ]+)",line)
-            if (mailServer):
-                #print (f"Found mailServer: {mailServer.group(1)}")
-                currentMessage["mailServer"] = mailServer.group(1)
-        else:
-            #print("Found a line with no message ID on it, skipping it...")
-            pass
-            
-    print("Message found is:")
-    print(currentMessage)
 
 if __name__ == '__main__':
     main()

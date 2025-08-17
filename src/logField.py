@@ -2,10 +2,8 @@
 class logField:
 
     def __init__(self,name,captureRegex):
-        pass
-
-    def __repr__(self):
-        return "to fill"
+        self.name = name
+        self.captureRegex = captureRegex
     
 
 def main():

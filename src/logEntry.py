@@ -1,12 +1,11 @@
 
 class logEntry:
 
-    def __init__(self,messageID,time,mailServer,clientName,clientIP,subject,sender,recipient,status,protocol):
-        pass
+    def __init__(self,fields = {}):
+        self.fields=fields
 
     def __repr__(self):
-        return "to fill"
-    
+        return f"{self.fields}"
 
 def main():
     entry = logEntry()
