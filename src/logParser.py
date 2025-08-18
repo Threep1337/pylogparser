@@ -1,4 +1,5 @@
 import re
+import logging
 from logEntry import logEntry
 class logParser:
 
@@ -30,7 +31,7 @@ class logParser:
                     self.logEntries[logIdentifier] = logEntry({self.identifierField.name:logIdentifier})
 
                 for logField in self.logFields:
-                    #print(f"Searching for field {logField.name}")
+                    logging.info(f"Searching for field {logField.name}")
 
                     #Skip searching for the field if the entry already has a value, more efficient
                     if not logField.name in self.logEntries[logIdentifier].fields:
@@ -38,10 +39,10 @@ class logParser:
 
                         if logFieldSearch:
                             logFieldValue=logFieldSearch.group(logField.regexMatchGroup)
-                            #print (f"found log field value {logField}")
+                            logging.info(f"found log field value {logField}")
                             self.logEntries[logIdentifier].fields[logField.name] = logFieldValue
                     else:
-                        print(f"Skipping searching for field {logField.name}, a value already exists.")
+                        logging.info(f"Skipping searching for field {logField.name}, a value already exists.")
         print(self.logEntries)
         
 

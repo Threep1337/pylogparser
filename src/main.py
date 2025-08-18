@@ -1,6 +1,7 @@
 # https://www.geeksforgeeks.org/python/command-line-arguments-in-python/
 import argparse
 import re
+import logging
 
 from logField import logField
 from logParser import logParser
@@ -8,10 +9,6 @@ from logEntry import logEntry
 
 # Next steps:
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
-# add a verbose flag or something so i can print the debug messages without commenting them out
-# there is a built in logging module (import logging) that i could use for this, or just a simple function that prints
-# if the verbose flag is set 
-# log entry can have an isComplete method that checks if all of the fields have values
 
 # Here is some AI generated program outline:
 
@@ -44,12 +41,15 @@ def main():
 
     parser = argparse.ArgumentParser(description=msg)
 
-    parser.add_argument("-l", "--Logfile", help = "Path to the log file to parse")
+    parser.add_argument("-l", "--logfile", help = "Path to the log file to parse")
+    parser.add_argument("-v","--verbose",help= "Set the verbosity level",action="count",default=0)
     args = parser.parse_args()
 
+    print(f"verbose level set to {args.verbose}")
+    if args.verbose > 0:
+        logging.basicConfig(level=logging.DEBUG)
 
     #Create the log fields that I want to parse
-    #Going to need to do something different for client and client ip, and mailserver
     indexField = logField("MessageID", "[0-9,A-F]{11}")
     logFields = [
         logField("Subject", "(?<=Subject: ).+(?= from.+\[.+\])"),
@@ -64,7 +64,7 @@ def main():
     ]
 
     postfixLogParser = logParser(indexField,logFields)
-    postfixLogParser.parseLog(args.Logfile)
+    postfixLogParser.parseLog(args.logfile)
 
 
 if __name__ == '__main__':
