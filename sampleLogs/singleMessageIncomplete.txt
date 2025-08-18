@@ -1,0 +1,4 @@
+2025-08-12T15:59:16.005015-04:00 MAILSERVER01 postfix/smtpd[300505]: 00F372E0144: client=CLIENTSERVER.myinternaldomain.int[10.10.16.185]
+2025-08-12T15:59:16.007382-04:00 MAILSERVER01 postfix/cleanup[300511]: 00F372E0144: message-id=<>
+2025-08-12T15:59:16.010054-04:00 MAILSERVER01 postfix/qmgr[15318]: 00F372E0144: from=<someoneelse@mailrelay.onmicrosoft.com>, size=534, nrcpt=1 (queue active)
+2025-08-12T15:59:19.041707-04:00 MAILSERVER01 postfix/qmgr[15318]: 00F372E0144: removed
