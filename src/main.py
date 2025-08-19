@@ -11,7 +11,6 @@ from logEntry import logEntry
 # Add support for a MySQL db to allow for ingesting logs into a database
 # Add a flag to allow for searching the log file being parsed
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
-# Add a check in logEntry or logParser to only return the complete or incomplete logs.
 
 # Here is some AI generated program outline:
 
