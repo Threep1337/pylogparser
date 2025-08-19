@@ -70,6 +70,7 @@ def main():
     postfixLogParser.parseLog(args.logfile)
 
     print("Complete logs:")
+    print(postfixLogParser.getCompleteLogEntries())
 
     print("Incomplete logs:")
     print(postfixLogParser.getIncompleteLogEntries())

@@ -44,28 +44,44 @@ class logParser:
         #print(self.logEntries)
 
     def getIncompleteLogEntries(self):
+
+        #Build up a list of incomplete log entries
         incompleteLogs =[]
-        for value in self.logEntries.values():
+
+        #Get all of the valid field names
+
+        field_names = [field.name for field in self.logFields]
+
+        for parsedLogEntry in self.logEntries.values():
+            logging.info(f"working on parded log entry {parsedLogEntry}")
+
             #Check if the log entry object has all of the fields set, by definition the identifier field has to be set
             #so that doesn't need to be checked
-
-            for key in self.logFields:
-                if not key in value.fields:
-                    incompleteLogs.append(value)
+            for logFieldName in field_names:
+                logging.info(f"checking if {logFieldName} is in {parsedLogEntry.fields}")
+                if not logFieldName in parsedLogEntry.fields:
+                    logging.info(f"could not find {logFieldName} in {parsedLogEntry.fields}, marking as an incomplete log entry.")
+                    incompleteLogs.append(parsedLogEntry)
                     break
         return incompleteLogs
 
 
     def getCompleteLogEntries(self):
         completeLogs =[]
-        for value in self.logEntries.values():
+
+        field_names = [field.name for field in self.logFields]
+
+        for parsedLogEntry in self.logEntries.values():
             #Check if the log entry object has all of the fields set, by definition the identifier field has to be set
             #so that doesn't need to be checked
-
-            for key in self.logFields:
-                if not key in value.fields:
+            logIsComplete = True
+            for logFieldName in field_names:
+                if not logFieldName in parsedLogEntry.fields:
+                    logIsComplete = False
                     break
-            completeLogs.append(value)
+            if logIsComplete:
+                completeLogs.append(parsedLogEntry)
+
         return completeLogs
         
 
