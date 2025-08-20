@@ -2,13 +2,17 @@
 import argparse
 import re
 import logging
+import mysql.connector
 
 from logField import logField
 from logParser import logParser
 from logEntry import logEntry
 
 # Next steps:
-# Add support for a MySQL db to allow for ingesting logs into a database
+# make an env file to put the connection info in
+# Make the SQL insert logic non-hardcoded, it should loop through the fields
+# and build a SQL statement to do the insert
+# Make it so that errors don't occur if it attempts to re-insert an already existing entry
 # Add a flag to allow for searching the log file being parsed
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
 
@@ -65,14 +69,33 @@ def main():
         logField("ClientIP", "(?<=client=)([^[]+)\[([^]]+)",2)
     ]
 
+    # Connect to the SQL Instance holding the logs
+    mydb = mysql.connector.connect(
+        host="SQLINSTANCEHERE",
+        user="USERNAMEHERE",
+        password="PLACEHOLDER",
+        database="DBNAMEHERE"
+        )
+
+    mycursor = mydb.cursor()
+
     postfixLogParser = logParser(indexField,logFields)
     postfixLogParser.parseLog(args.logfile)
 
     print("Complete logs:")
-    print(postfixLogParser.getCompleteLogEntries())
+    completeLogs = postfixLogParser.getCompleteLogEntries()
+    print(completeLogs)
 
     print("Incomplete logs:")
     print(postfixLogParser.getIncompleteLogEntries())
+
+    #Insert the complete log entries into the database
+
+    for log in completeLogs:
+        sql = "INSERT INTO postfixlogs (MessageID, Sender,Recipient,Status,Protocol,DateTime,MailServer,ClientName,ClientIP) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        val = (log.fields["MessageID"], log.fields["Sender"],log.fields["Recipient"],log.fields["Status"],log.fields["Protocol"],log.fields["DateTime"],log.fields["MailServer"],log.fields["ClientName"],log.fields["ClientIP"])
+        mycursor.execute(sql, val)
+        mydb.commit()
 
 
 if __name__ == '__main__':
