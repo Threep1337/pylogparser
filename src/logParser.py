@@ -53,7 +53,7 @@ class logParser:
         field_names = [field.name for field in self.logFields]
 
         for parsedLogEntry in self.logEntries.values():
-            logging.info(f"working on parded log entry {parsedLogEntry}")
+            logging.info(f"working on parsed log entry {parsedLogEntry}")
 
             #Check if the log entry object has all of the fields set, by definition the identifier field has to be set
             #so that doesn't need to be checked

@@ -103,8 +103,11 @@ def main():
     for log in completeLogs:
         sql = "INSERT INTO postfixlogs (MessageID, Sender,Recipient,Status,Protocol,DateTime,MailServer,ClientName,ClientIP) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
         val = (log.fields["MessageID"], log.fields["Sender"],log.fields["Recipient"],log.fields["Status"],log.fields["Protocol"],log.fields["DateTime"],log.fields["MailServer"],log.fields["ClientName"],log.fields["ClientIP"])
-        mycursor.execute(sql, val)
-        mydb.commit()
+        try:
+            mycursor.execute(sql, val)
+            mydb.commit()
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':
