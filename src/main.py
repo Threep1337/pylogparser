@@ -3,6 +3,8 @@ import argparse
 import re
 import logging
 import mysql.connector
+from dotenv import load_dotenv
+import os
 
 from logField import logField
 from logParser import logParser
@@ -13,6 +15,8 @@ from logEntry import logEntry
 # Make the SQL insert logic non-hardcoded, it should loop through the fields
 # and build a SQL statement to do the insert
 # Make it so that errors don't occur if it attempts to re-insert an already existing entry
+# Create the database if it doesn't already exist
+# Create the table for the log type if it doesn't already exist in the database
 # Add a flag to allow for searching the log file being parsed
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
 
@@ -43,8 +47,13 @@ from logEntry import logEntry
 
 def main():
 
-    msg = "Python Postfix log parser"
+    load_dotenv()  # Loads variables from .env into os.environ
+    DBHOST=os.getenv("DBHOST")
+    DBUSER=os.getenv("DBUSER")
+    DBPASSWORD=os.getenv("DBPASSWORD")
+    DBDATABASE=os.getenv("DBDATABASE")
 
+    msg = "Python Postfix log parser"
     parser = argparse.ArgumentParser(description=msg)
 
     parser.add_argument("-l", "--logfile", help = "Path to the log file to parse")
@@ -71,10 +80,10 @@ def main():
 
     # Connect to the SQL Instance holding the logs
     mydb = mysql.connector.connect(
-        host="SQLINSTANCEHERE",
-        user="USERNAMEHERE",
-        password="PLACEHOLDER",
-        database="DBNAMEHERE"
+        host=DBHOST,
+        user=DBUSER,
+        password=DBPASSWORD,
+        database=DBDATABASE
         )
 
     mycursor = mydb.cursor()

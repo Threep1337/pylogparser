@@ -1,0 +1,4 @@
+DBHOST=YourDBHostHere
+DBUSER=DBUserName
+DBPASSWORD=DbUserPassword
+DBDATABASE=DbName
