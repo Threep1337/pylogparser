@@ -11,12 +11,12 @@ from logParser import logParser
 from logEntry import logEntry
 
 # Next steps:
-# make an env file to put the connection info in
 # Make the SQL insert logic non-hardcoded, it should loop through the fields
 # and build a SQL statement to do the insert
-# Make it so that errors don't occur if it attempts to re-insert an already existing entry
 # Create the database if it doesn't already exist
 # Create the table for the log type if it doesn't already exist in the database
+# Improve the code that does the DB inserts to possibly do them in bulk
+# See if there is a better way to handle DB inserts for already existing records
 # Add a flag to allow for searching the log file being parsed
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
 
@@ -103,6 +103,9 @@ def main():
     for log in completeLogs:
         sql = "INSERT INTO postfixlogs (MessageID, Sender,Recipient,Status,Protocol,DateTime,MailServer,ClientName,ClientIP) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
         val = (log.fields["MessageID"], log.fields["Sender"],log.fields["Recipient"],log.fields["Status"],log.fields["Protocol"],log.fields["DateTime"],log.fields["MailServer"],log.fields["ClientName"],log.fields["ClientIP"])
+        
+        #There is probably a better way to handle this then catching the error and doing nothing
+        #Look into this when optimising the program
         try:
             mycursor.execute(sql, val)
             mydb.commit()
