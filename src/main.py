@@ -13,13 +13,16 @@ from logEntry import logEntry
 # Next steps:
 # Make the SQL insert logic non-hardcoded, it should loop through the fields
 # and build a SQL statement to do the insert
+# Metadata of the SQL type will need to be in the log parser field or somewhere.  LogEntryDefinition?
 # Create the database if it doesn't already exist
 # Create the table for the log type if it doesn't already exist in the database
 # Improve the code that does the DB inserts to possibly do them in bulk
 # See if there is a better way to handle DB inserts for already existing records
 # Add a flag to allow for searching the log file being parsed
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
-
+# Make the log field defintion be a config json file rather than hardcoded in main
+# ADD SUBJECT TO THE DB TABLE
+# Make the DATE in the DB include the timestamp
 # Here is some AI generated program outline:
 
 # High-level structure for postfix log analyzer
@@ -60,7 +63,6 @@ def main():
     parser.add_argument("-v","--verbose",help= "Set the verbosity level",action="count",default=0)
     args = parser.parse_args()
 
-    print(f"verbose level set to {args.verbose}")
     if args.verbose > 0:
         logging.basicConfig(level=logging.DEBUG)
 
@@ -91,26 +93,37 @@ def main():
     postfixLogParser = logParser(indexField,logFields)
     postfixLogParser.parseLog(args.logfile)
 
-    print("Complete logs:")
+    logging.info("Complete logs:")
     completeLogs = postfixLogParser.getCompleteLogEntries()
-    print(completeLogs)
+    logging.info(completeLogs)
 
-    print("Incomplete logs:")
-    print(postfixLogParser.getIncompleteLogEntries())
+    logging.info("Incomplete logs:")
+    logging.info(postfixLogParser.getIncompleteLogEntries())
 
     #Insert the complete log entries into the database
+    #Build up the SQL insert query string that will be re-used on each insert
+    sqlQuery = f"INSERT INTO postfixlogs ({postfixLogParser.identifierField.name}"
+
+    for logFieldEntry in postfixLogParser.logFields:
+        sqlQuery += f", {logFieldEntry.name}"
+    sqlQuery += ") VALUES (%s"
+
+    for logFieldEntry in postfixLogParser.logFields:
+        sqlQuery += f", %s"
+    sqlQuery += ")"
+    logging.info(sqlQuery)
 
     for log in completeLogs:
-        sql = "INSERT INTO postfixlogs (MessageID, Sender,Recipient,Status,Protocol,DateTime,MailServer,ClientName,ClientIP) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        val = (log.fields["MessageID"], log.fields["Sender"],log.fields["Recipient"],log.fields["Status"],log.fields["Protocol"],log.fields["DateTime"],log.fields["MailServer"],log.fields["ClientName"],log.fields["ClientIP"])
-        
+        val = [log.fields[postfixLogParser.identifierField.name]]
+        for logFieldEntry in postfixLogParser.logFields:
+            val.append(log.fields[logFieldEntry.name])
         #There is probably a better way to handle this then catching the error and doing nothing
         #Look into this when optimising the program
         try:
-            mycursor.execute(sql, val)
+            mycursor.execute(sqlQuery, val)
             mydb.commit()
         except Exception as e:
-            print(e)
+            logging.error(e)
 
 
 if __name__ == '__main__':
