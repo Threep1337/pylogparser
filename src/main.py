@@ -11,18 +11,18 @@ from logParser import logParser
 from logEntry import logEntry
 
 # Next steps:
-# Make the SQL insert logic non-hardcoded, it should loop through the fields
-# and build a SQL statement to do the insert
 # Metadata of the SQL type will need to be in the log parser field or somewhere.  LogEntryDefinition?
 # Create the database if it doesn't already exist
 # Create the table for the log type if it doesn't already exist in the database
+# the table name should be dynamic, right now its hard coded
 # Improve the code that does the DB inserts to possibly do them in bulk
 # See if there is a better way to handle DB inserts for already existing records
 # Add a flag to allow for searching the log file being parsed
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
 # Make the log field defintion be a config json file rather than hardcoded in main
-# ADD SUBJECT TO THE DB TABLE
-# Make the DATE in the DB include the timestamp
+# Eventually, add a timer to measure how long this takes so that I can optimise it, I will need a much larger data sample
+
+
 # Here is some AI generated program outline:
 
 # High-level structure for postfix log analyzer
@@ -99,6 +99,10 @@ def main():
 
     logging.info("Incomplete logs:")
     logging.info(postfixLogParser.getIncompleteLogEntries())
+
+    #Check if the table exists, if it doesn't create it
+    #SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='pythonlogger' AND TABLE_NAME='postfixlogs';
+
 
     #Insert the complete log entries into the database
     #Build up the SQL insert query string that will be re-used on each insert
