@@ -12,7 +12,7 @@ from logEntry import logEntry
 
 # Next steps:
 # Metadata of the SQL type will need to be in the log parser field or somewhere.  LogEntryDefinition?
-# Create the database if it doesn't already exist
+# Create the database if it doesn't already exist - MAYBE??
 # Create the table for the log type if it doesn't already exist in the database
 # the table name should be dynamic, right now its hard coded
 # Improve the code that does the DB inserts to possibly do them in bulk
