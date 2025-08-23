@@ -1,10 +1,11 @@
 
 class logField:
 
-    def __init__(self,name,captureRegex,regexMatchGroup=0):
+    def __init__(self,name,captureRegex,sqlType,regexMatchGroup=0):
         self.name = name
         self.captureRegex = captureRegex
         self.regexMatchGroup = regexMatchGroup
+        self.sqlType = sqlType
     
 
 def main():

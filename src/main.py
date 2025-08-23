@@ -11,10 +11,6 @@ from logParser import logParser
 from logEntry import logEntry
 
 # Next steps:
-# Metadata of the SQL type will need to be in the log parser field or somewhere.  LogEntryDefinition?
-# Create the database if it doesn't already exist - MAYBE??
-# Create the table for the log type if it doesn't already exist in the database
-# the table name should be dynamic, right now its hard coded
 # Improve the code that does the DB inserts to possibly do them in bulk
 # See if there is a better way to handle DB inserts for already existing records
 # Add a flag to allow for searching the log file being parsed
@@ -67,17 +63,17 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
 
     #Create the log fields that I want to parse
-    indexField = logField("MessageID", "[0-9,A-F]{11}")
+    indexField = logField("MessageID", "[0-9,A-F]{11}","char(11)")
     logFields = [
-        logField("Subject", "(?<=Subject: ).+(?= from.+\[.+\])"),
-        logField("Sender", "(?<=[0-9,A-F]{11}: from=<)[^>]+"),
-        logField("Recipient", "(?<=[0-9,A-F]{11}: to=<)[^>]+"),
-        logField("Status", "(?<=status=)[^ ]+"),
-        logField("Protocol", "(?<=proto=)[^ ]+"),
-        logField("DateTime", "^[^ ]+"),
-        logField("MailServer", "(?<=^.{32}\s)[^ ]+"),
-        logField("ClientName", "(?<=client=)([^[]+)\[([^]]+)",1),
-        logField("ClientIP", "(?<=client=)([^[]+)\[([^]]+)",2)
+        logField("Subject", "(?<=Subject: ).+(?= from.+\[.+\])","varchar(255)"),
+        logField("Sender", "(?<=[0-9,A-F]{11}: from=<)[^>]+","varchar(255)"),
+        logField("Recipient", "(?<=[0-9,A-F]{11}: to=<)[^>]+","varchar(255)"),
+        logField("Status", "(?<=status=)[^ ]+","varchar(20)"),
+        logField("Protocol", "(?<=proto=)[^ ]+","varchar(20)"),
+        logField("DateTime", "^[^ ]+","date"),
+        logField("MailServer", "(?<=^.{32}\s)[^ ]+","varchar(255)"),
+        logField("ClientName", "(?<=client=)([^[]+)\[([^]]+)","varchar(255)",1),
+        logField("ClientIP", "(?<=client=)([^[]+)\[([^]]+)","varchar(255)",2)
     ]
 
     # Connect to the SQL Instance holding the logs
@@ -90,7 +86,7 @@ def main():
 
     mycursor = mydb.cursor()
 
-    postfixLogParser = logParser(indexField,logFields)
+    postfixLogParser = logParser(indexField,logFields,"postfixlogs")
     postfixLogParser.parseLog(args.logfile)
 
     logging.info("Complete logs:")
@@ -103,10 +99,23 @@ def main():
     #Check if the table exists, if it doesn't create it
     #SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='pythonlogger' AND TABLE_NAME='postfixlogs';
 
+    sqlTableCheckQuery = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='{DBDATABASE}' AND TABLE_NAME='{postfixLogParser.logName}';"
+    mycursor.execute(sqlTableCheckQuery)
+    if mycursor.fetchone()[0] == 1:
+        logging.info("Table already exists.")
+    else:
+        logging.info("Log DB table does not exist, creating it.")
+        sqlTableCreationQuery = f"CREATE TABLE {postfixLogParser.logName} ("
+        sqlTableCreationQuery += f"{postfixLogParser.identifierField.name} {postfixLogParser.identifierField.sqlType} NOT NULL"
+        for logFieldEntry in postfixLogParser.logFields:
+            sqlTableCreationQuery +=f", {logFieldEntry.name} {logFieldEntry.sqlType}  NOT NULL"
+        sqlTableCreationQuery += f", PRIMARY KEY ({postfixLogParser.identifierField.name}));"
+        mycursor.execute(sqlTableCreationQuery)
+
 
     #Insert the complete log entries into the database
     #Build up the SQL insert query string that will be re-used on each insert
-    sqlQuery = f"INSERT INTO postfixlogs ({postfixLogParser.identifierField.name}"
+    sqlQuery = f"INSERT INTO {postfixLogParser.logName} ({postfixLogParser.identifierField.name}"
 
     for logFieldEntry in postfixLogParser.logFields:
         sqlQuery += f", {logFieldEntry.name}"

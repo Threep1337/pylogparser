@@ -3,9 +3,10 @@ import logging
 from logEntry import logEntry
 class logParser:
 
-    def __init__(self,identifierField,logFields):
+    def __init__(self,identifierField,logFields,logName):
         self.identifierField = identifierField
         self.logFields = logFields
+        self.logName = logName
 
         #Dictionary of log entries, the identifierField is the key, the value will be a logEntry class instance
         self.logEntries = {}
