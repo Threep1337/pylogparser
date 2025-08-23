@@ -11,11 +11,13 @@ from logParser import logParser
 from logEntry import logEntry
 
 # Next steps:
+
+# Add a flag to allow for searching the log file being parsed
 # Improve the code that does the DB inserts to possibly do them in bulk
 # See if there is a better way to handle DB inserts for already existing records
-# Add a flag to allow for searching the log file being parsed
-# Add a unit test that takes a known input text source and makes sure the created logentries match it
 # Make the log field defintion be a config json file rather than hardcoded in main
+# Add a unit test that takes a known input text source and makes sure the created logentries match it
+# General polish and re-factoring is needed, the code and names are getting ugly
 # Eventually, add a timer to measure how long this takes so that I can optimise it, I will need a much larger data sample
 
 
