@@ -135,7 +135,7 @@ def main():
 
     #Insert the complete log entries into the database
     #Build up the SQL insert query string that will be re-used on each insert
-    sqlQuery = f"INSERT INTO {postfixLogParser.logName} ({postfixLogParser.identifierField.name}"
+    sqlQuery = f"INSERT IGNORE INTO {postfixLogParser.logName} ({postfixLogParser.identifierField.name}"
 
     for logFieldEntry in postfixLogParser.logFields:
         sqlQuery += f", {logFieldEntry.name}"
@@ -146,14 +146,16 @@ def main():
     sqlQuery += ")"
     logging.info(sqlQuery)
 
-    for log in completeLogs:
-        val = [log.fields[postfixLogParser.identifierField.name]]
-        for logFieldEntry in postfixLogParser.logFields:
-            val.append(log.fields[logFieldEntry.name])
-        #There is probably a better way to handle this then catching the error and doing nothing
-        #Look into this when optimising the program
+    if len(completeLogs) > 0:
+        logRecords=[]
+        for log in completeLogs:
+            val = [log.fields[postfixLogParser.identifierField.name]]
+            for logFieldEntry in postfixLogParser.logFields:
+                val.append(log.fields[logFieldEntry.name])
+            logRecords.append(val)
+
         try:
-            mycursor.execute(sqlQuery, val)
+            mycursor.executemany(sqlQuery, logRecords)
             mydb.commit()
         except Exception as e:
             logging.error(e)
