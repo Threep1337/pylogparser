@@ -6,8 +6,6 @@ import mysql.connector
 from dotenv import load_dotenv
 import os
 import time
-
-
 from logField import logField
 from logParser import logParser
 from logEntry import logEntry
@@ -15,52 +13,13 @@ from logEntry import logEntry
 # Next steps:
 
 # Add a flag to allow for searching the log file being parsed
-# Improve the code that does the DB inserts to possibly do them in bulk
-# use cursor.executemany(sql, data), where data is a list lists of values to update
-# change the insert to insert ignore, to handle records that already exist
-# See if there is a better way to handle DB inserts for already existing records
+# Search can be based on a text filter, "sender -eq 'example@test.com' or a raw SQL query", a different flag for each case
 # Make the log field defintion be a config json file rather than hardcoded in main
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
 # General polish and re-factoring is needed, the code and names are getting ugly
 # Add better error checking and error handling
-# Finish project for now
-# Eventually, add a timer to measure how long this takes so that I can optimise it, I will need a much larger data sample
 
-# Measure time
 
-# import time
-
-# start = time.perf_counter()
-
-# insert_records()
-
-# end = time.perf_counter()
-# print(f"Time taken: {end - start:.6f} seconds")
-
-# Here is some AI generated program outline:
-
-# High-level structure for postfix log analyzer
-# 1. LogReader – reads raw log lines from file(s)
-# 2. LogParser – parses lines into structured data
-# 3. LogEntry – class to represent a single parsed message
-# 4. LogStorage – stores parsed entries (list or later a DB)
-# 5. SearchEngine – filters/searches entries by criteria
-# 6. CLI/Interface – user interaction (command line first)
-
-# Classes:
-# LogEntry: holds timestamp, queue_id, from_address, to_address, status, raw_line
-# LogReader: opens log file, yields lines
-# LogParser: converts raw line -> LogEntry (regex helpers etc.)
-# LogStorage: keeps all LogEntry objects (list or indexed)
-# SearchEngine: query/filter functions on LogStorage
-# PostfixAnalyzer (optional): ties everything together
-
-# Flow:
-# - Reader gets lines
-# - Parser builds LogEntry
-# - Storage keeps entries
-# - SearchEngine finds matches
-# - Results printed/output
 
 def main():
 
@@ -117,8 +76,6 @@ def main():
     logging.info(postfixLogParser.getIncompleteLogEntries())
 
     #Check if the table exists, if it doesn't create it
-    #SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='pythonlogger' AND TABLE_NAME='postfixlogs';
-
     sqlTableCheckQuery = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='{DBDATABASE}' AND TABLE_NAME='{postfixLogParser.logName}';"
     mycursor.execute(sqlTableCheckQuery)
     if mycursor.fetchone()[0] == 1:
