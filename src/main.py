@@ -5,6 +5,8 @@ import logging
 import mysql.connector
 from dotenv import load_dotenv
 import os
+import time
+
 
 from logField import logField
 from logParser import logParser
@@ -14,12 +16,26 @@ from logEntry import logEntry
 
 # Add a flag to allow for searching the log file being parsed
 # Improve the code that does the DB inserts to possibly do them in bulk
+# use cursor.executemany(sql, data), where data is a list lists of values to update
+# change the insert to insert ignore, to handle records that already exist
 # See if there is a better way to handle DB inserts for already existing records
 # Make the log field defintion be a config json file rather than hardcoded in main
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
 # General polish and re-factoring is needed, the code and names are getting ugly
+# Add better error checking and error handling
+# Finish project for now
 # Eventually, add a timer to measure how long this takes so that I can optimise it, I will need a much larger data sample
 
+# Measure time
+
+# import time
+
+# start = time.perf_counter()
+
+# insert_records()
+
+# end = time.perf_counter()
+# print(f"Time taken: {end - start:.6f} seconds")
 
 # Here is some AI generated program outline:
 
@@ -47,6 +63,8 @@ from logEntry import logEntry
 # - Results printed/output
 
 def main():
+
+    start = time.perf_counter()
 
     load_dotenv()  # Loads variables from .env into os.environ
     DBHOST=os.getenv("DBHOST")
@@ -139,7 +157,9 @@ def main():
             mydb.commit()
         except Exception as e:
             logging.error(e)
-
+    
+    end = time.perf_counter()
+    print(f"Time taken: {end - start:.6f} seconds")
 
 if __name__ == '__main__':
     main()
