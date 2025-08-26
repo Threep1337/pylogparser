@@ -29,10 +29,30 @@ def main():
     DBDATABASE=os.getenv("DBDATABASE")
 
     
-    #Make the command use subcommands
-    #ingestLogs search query purge
+
     msg = "Python Postfix log parser"
     parser = argparse.ArgumentParser(description=msg)
+
+
+    #Make the command use subcommands
+    #Add subcommands to the script
+    subparsers = parser.add_subparsers(title="subcommands",dest="command",required=True)
+
+    #Subcommand ingestLogs
+    ingestLogsParser = subparsers.add_parser("ingestLogs", help="Ingest logs into the database")
+    ingestLogsParser.add_argument("files",nargs="+", help="Log files to parse and ingest to the database")
+
+    #Subcommand search
+    searchParser = subparsers.add_parser("search", help="Search the logs using a search expression")
+    searchParser.add_argument("searchExpression",help="Search expression to run")
+
+    #Subcommand query
+    queryParser = subparsers.add_parser("query", help="Run a direct query against the log DB")
+    queryParser.add_argument("queryString",help="The Query string to run")
+
+    #Subcommand purge
+    purgeParser = subparsers.add_parser("purge", help="purge logs into the database")
+    purgeParser.add_argument("files",nargs="+", help="Log files to parse and ingest to the database")
 
 
     parser.add_argument("-l", "--logfile", help = "Path to the log file to parse")
