@@ -21,15 +21,19 @@ from logEntry import logEntry
 def main():
 
     
-
-    load_dotenv()  # Loads variables from .env into os.environ
+    # Loads variables from .env into os.environ
+    load_dotenv()
     DBHOST=os.getenv("DBHOST")
     DBUSER=os.getenv("DBUSER")
     DBPASSWORD=os.getenv("DBPASSWORD")
     DBDATABASE=os.getenv("DBDATABASE")
 
+    
+    #Make the command use subcommands
+    #ingestLogs search query purge
     msg = "Python Postfix log parser"
     parser = argparse.ArgumentParser(description=msg)
+
 
     parser.add_argument("-l", "--logfile", help = "Path to the log file to parse")
     parser.add_argument("-v","--verbose",help= "Set the verbosity level",action="count",default=0)
@@ -194,7 +198,6 @@ def main():
         field = tokens[0]
         operator = tokens[1]
         value = tokens[2]
-        #-s "sender -eq someoneelse@mailrelay.onmicrosoft.com"
         logging.info(f"\nfield: {field}\noperator: {operator}\nvalue: {value}")
 
         #The table name shouldn't be hardcoded like this, need to think of how to re-factor previous code
@@ -202,7 +205,6 @@ def main():
         #parsing run is being performed
         searchQuery = f"SELECT * FROM postfixlogs WHERE {field}"
 
-        #Add more operators here, and I should fail out if its not a valid one
         match operator:
             case "-eq":
                 print ("equals")
