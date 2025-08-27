@@ -17,6 +17,14 @@ from logEntry import logEntry
 # Add better error checking and error handling
 
 
+# Classes in project and uses
+# logParser: Performs parsing against a log file and returns a list of logEntry objects
+# logEntry: Represents an individial log entry, does not contain any info on how to parse a log
+# logField: Represents the definition of a log field that exists in a log, how it can be parsed, and what SQL type it should be. I might rename the class logFieldDefinition or something
+# logDefinition: Represents the definition of a log file, specifying what the name of the log type is, what its identifier field is, and what other fields exist in it.
+# logSearcher: Validates that the query or search string is valid and then executes a seearch against a logDB
+# logDB: Represents a log database, connects to the DB and validates that the DB exists and is valid, and has logic to create the DB if not.  Requires a logDefintion.
+
 
 def main():
 
