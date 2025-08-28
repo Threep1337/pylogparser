@@ -42,7 +42,7 @@ def main():
     parser = argparse.ArgumentParser(description=msg)
 
 
-    #Make the command use subcommands
+    #Make the command use subcommandss
     #Add subcommands to the script
     subparsers = parser.add_subparsers(title="subcommands",dest="command",required=True)
 
