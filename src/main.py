@@ -13,10 +13,10 @@ from logDefinition import logDefinition
 from logSearcher import logSearcher
 
 # Next steps:
-# CLEAN THE INGESTLOGS PART OF MAIN
+# Put all of the DB code in its own class and get it out of main
 # Make the log field defintion be a config json file rather than hardcoded in main
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
-# General polish and re-factoring is needed, the code and names are getting ugly
+# General polish and re-factoring is needed
 # Add better error checking and error handling
 
 
@@ -39,11 +39,9 @@ def main():
     DBPASSWORD=os.getenv("DBPASSWORD")
     DBDATABASE=os.getenv("DBDATABASE")
 
-    
-
+    #Create argument parser with a message
     msg = "Python log parser.  This program can ingest logs into a database for searching."
     parser = argparse.ArgumentParser(description=msg)
-
 
     #Global arguments
     parser.add_argument("-v","--verbose",help= "Set the verbosity level",action="count",default=0)
@@ -92,7 +90,6 @@ def main():
     ]
 
     #Create a log definition that will be used by the parser
-    #This shoudl replace the lines below where the parser is referenced for the fields
     logToParseDefinition = logDefinition("postfixlogs",indexField,logFields)
 
     # Connect to the SQL Instance holding the logs
@@ -105,6 +102,7 @@ def main():
 
     mycursor = mydb.cursor()
 
+    #I should use the logDefinition in any reference that creates fields etc, not the log parse references
     if args.command == "ingestLogs":
         logging.info("Starting log ingestion")
 
@@ -129,92 +127,52 @@ def main():
         logging.info("Incomplete logs:")
         logging.info(postfixLogParser.getIncompleteLogEntries())
 
+        #This should be put into another class (logDB) it should have a function like CreateInsertQuery or something that takes a logDefinition.
         #Check if the table exists, if it doesn't create it
-        sqlTableCheckQuery = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='{DBDATABASE}' AND TABLE_NAME='{postfixLogParser.logName}';"
+        sqlTableCheckQuery = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='{DBDATABASE}' AND TABLE_NAME='{logToParseDefinition.logName}';"
         mycursor.execute(sqlTableCheckQuery)
         if mycursor.fetchone()[0] == 1:
             logging.info("Table already exists.")
         else:
             logging.info("Log DB table does not exist, creating it.")
-            sqlTableCreationQuery = f"CREATE TABLE {postfixLogParser.logName} ("
-            sqlTableCreationQuery += f"{postfixLogParser.identifierField.name} {postfixLogParser.identifierField.sqlType} NOT NULL"
-            for logFieldEntry in postfixLogParser.logFields:
+            sqlTableCreationQuery = f"CREATE TABLE {logToParseDefinition.logName} ("
+            sqlTableCreationQuery += f"{logToParseDefinition.identifierField.name} {logToParseDefinition.identifierField.sqlType} NOT NULL"
+            for logFieldEntry in logToParseDefinition.otherFields:
                 sqlTableCreationQuery +=f", {logFieldEntry.name} {logFieldEntry.sqlType}  NOT NULL"
-            sqlTableCreationQuery += f", PRIMARY KEY ({postfixLogParser.identifierField.name}));"
+            sqlTableCreationQuery += f", PRIMARY KEY ({logToParseDefinition.identifierField.name}));"
             mycursor.execute(sqlTableCreationQuery)
-
 
         #Insert the complete log entries into the database
         #Build up the SQL insert query string that will be re-used on each insert
-        sqlQuery = f"INSERT IGNORE INTO {postfixLogParser.logName} ({postfixLogParser.identifierField.name}"
+        sqlQuery = f"INSERT IGNORE INTO {logToParseDefinition.logName} ({logToParseDefinition.identifierField.name}"
 
         if args.time:
             now = time.perf_counter()
             print(f"Start of DB inserts: {now - start:.6f} seconds")
 
-        for logFieldEntry in postfixLogParser.logFields:
+        for logFieldEntry in logToParseDefinition.otherFields:
             sqlQuery += f", {logFieldEntry.name}"
         sqlQuery += ") VALUES (%s"
 
-        for logFieldEntry in postfixLogParser.logFields:
+        for logFieldEntry in logToParseDefinition.otherFields:
             sqlQuery += f", %s"
         sqlQuery += ")"
         logging.info(sqlQuery)
 
-
-        #Since I know the number of log records and how many fields in each log, I could pre-allocate array sizes:
-        #     n = 1000
-        #       arr = [None] * n  # or [0] * n if numbers
-        #
-        #     rows = 1000
-        # cols = 5
-        # arr = [[None] * cols for _ in range(rows)]
-
-        # for r in range(rows):
-        # arr[r][0] = r            # int
-        # arr[r][1] = str(r)       # str
-        # arr[r][2] = r * 0.5      # float
-        # arr[r][3] = {"id": r}    # dict
-        # arr[r][4] = None         # placeholder
-
+        
         if len(completeLogs) > 0:
-            logRecords=[None] * len(completeLogs)
-
-            x=0
+            logRecords=[]
             for log in completeLogs:
-                #This doesnt need to be calculated every time
-                val = [None] * (len(log.fields))
-                val[0] = log.fields[postfixLogParser.identifierField.name]
-                
-                y=1
-                for logFieldEntry in postfixLogParser.logFields:
-                    val[y] = log.fields[logFieldEntry.name]
-                    y+=1
-                #print(f"val is {val}")
-                logRecords[x]=val
-                x+=1
+                val = [log.fields[logToParseDefinition.identifierField.name]]
+                for logFieldEntry in logToParseDefinition.otherFields:
+                    val.append(log.fields[logFieldEntry.name])
+                logRecords.append(val)
 
             try:
-                #print ("HERE")
-                #print(len(logRecords))
-                #print(logRecords[0])
                 mycursor.executemany(sqlQuery, logRecords)
                 mydb.commit()
             except Exception as e:
                 logging.error(e)
-        # if len(completeLogs) > 0:
-    #     logRecords=[]
-    #     for log in completeLogs:
-    #         val = [log.fields[postfixLogParser.identifierField.name]]
-    #         for logFieldEntry in postfixLogParser.logFields:
-    #             val.append(log.fields[logFieldEntry.name])
-    #         logRecords.append(val)
-
-    #     try:
-    #         mycursor.executemany(sqlQuery, logRecords)
-    #         mydb.commit()
-    #     except Exception as e:
-    #         logging.error(e)
     
     if args.command == "search":
         logging.info("Starting a search")
