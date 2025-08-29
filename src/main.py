@@ -9,8 +9,11 @@ import time
 from logField import logField
 from logParser import logParser
 from logEntry import logEntry
+from logDefinition import logDefinition
+from logSearcher import logSearcher
 
 # Next steps:
+# CLEAN THE INGESTLOGS PART OF MAIN
 # Make the log field defintion be a config json file rather than hardcoded in main
 # Add a unit test that takes a known input text source and makes sure the created logentries match it
 # General polish and re-factoring is needed, the code and names are getting ugly
@@ -38,9 +41,13 @@ def main():
 
     
 
-    msg = "Python Postfix log parser"
+    msg = "Python log parser.  This program can ingest logs into a database for searching."
     parser = argparse.ArgumentParser(description=msg)
 
+
+    #Global arguments
+    parser.add_argument("-v","--verbose",help= "Set the verbosity level",action="count",default=0)
+    parser.add_argument("-t","--time",help= "Flag to measure the runtime.",action="store_true")
 
     #Make the command use subcommandss
     #Add subcommands to the script
@@ -60,14 +67,8 @@ def main():
 
     #Subcommand purge
     purgeParser = subparsers.add_parser("purge", help="purge logs into the database")
-    purgeParser.add_argument("files",nargs="+", help="Log files to parse and ingest to the database")
-
-
-    parser.add_argument("-l", "--logfile", help = "Path to the log file to parse")
-    parser.add_argument("-v","--verbose",help= "Set the verbosity level",action="count",default=0)
-    parser.add_argument("-s","--search",help= "Search the log entries")
-    parser.add_argument("-q","--query",help= "Query the log entries")
-    parser.add_argument("-t","--time",help= "Flag to measure the runtime.",action="store_true")
+    # purgeParser.add_argument("files",nargs="+", help="Log files to parse and ingest to the database")
+    
     args = parser.parse_args()
 
     if args.time:
@@ -90,6 +91,10 @@ def main():
         logField("ClientIP", "(?<=client=)([^[]+)\[([^]]+)","varchar(255)",2)
     ]
 
+    #Create a log definition that will be used by the parser
+    #This shoudl replace the lines below where the parser is referenced for the fields
+    logToParseDefinition = logDefinition("postfixlogs",indexField,logFields)
+
     # Connect to the SQL Instance holding the logs
     mydb = mysql.connector.connect(
         host=DBHOST,
@@ -100,17 +105,22 @@ def main():
 
     mycursor = mydb.cursor()
 
-    if args.logfile:
+    if args.command == "ingestLogs":
         logging.info("Starting log ingestion")
-        if args.time:
-            end = time.perf_counter()
-            print(f"Time taken: {end - start:.6f} seconds")
-        postfixLogParser = logParser(indexField,logFields,"postfixlogs")
-        postfixLogParser.parseLog(args.logfile)
 
         if args.time:
-            end = time.perf_counter()
-            print(f"Time AFTER PARSELOG taken: {end - start:.6f} seconds")
+            now = time.perf_counter()
+            print(f"Start of log ingestion: {now - start:.6f} seconds")
+
+        postfixLogParser = logParser(logToParseDefinition.identifierField,logToParseDefinition.otherFields,logToParseDefinition.logName)
+
+        for file in args.files:
+            print (f"working on {file}")
+            postfixLogParser.parseLog(file)
+
+        if args.time:
+            now = time.perf_counter()
+            print(f"end of log parsing: {now - start:.6f} seconds")
 
         logging.info("Complete logs:")
         completeLogs = postfixLogParser.getCompleteLogEntries()
@@ -139,8 +149,8 @@ def main():
         sqlQuery = f"INSERT IGNORE INTO {postfixLogParser.logName} ({postfixLogParser.identifierField.name}"
 
         if args.time:
-            end = time.perf_counter()
-            print(f"Time taken: {end - start:.6f} seconds")
+            now = time.perf_counter()
+            print(f"Start of DB inserts: {now - start:.6f} seconds")
 
         for logFieldEntry in postfixLogParser.logFields:
             sqlQuery += f", {logFieldEntry.name}"
@@ -166,9 +176,6 @@ def main():
         # arr[r][2] = r * 0.5      # float
         # arr[r][3] = {"id": r}    # dict
         # arr[r][4] = None         # placeholder
-        if args.time:
-            end = time.perf_counter()
-            print(f"Time taken: {end - start:.6f} seconds")
 
         if len(completeLogs) > 0:
             logRecords=[None] * len(completeLogs)
@@ -209,56 +216,14 @@ def main():
     #     except Exception as e:
     #         logging.error(e)
     
-    if args.search:
+    if args.command == "search":
         logging.info("Starting a search")
         # Build up a SQL query based on the search string passed in
         # Search strings should be of the format "field -operator value"
         # So for example "sender -eq 'someoneelse@mailrelay.onmicrosoft.com'"
-        strippedSearchString = args.search.strip()
 
-        #Validate its format
-        #convert to SQL query
-
-        #Get each token in the string, initially just have a single one that turn that into a query
-        #Maybe I should make a new class to handle constructing the search query
-        tokens = strippedSearchString.split(" ")
-
-        field = tokens[0]
-        operator = tokens[1]
-        value = tokens[2]
-        logging.info(f"\nfield: {field}\noperator: {operator}\nvalue: {value}")
-
-        #The table name shouldn't be hardcoded like this, need to think of how to re-factor previous code
-        #Either the parser object needs to be present, or I need to think of a better way to have it defined if a non
-        #parsing run is being performed
-        searchQuery = f"SELECT * FROM postfixlogs WHERE {field}"
-
-        match operator:
-            case "-eq":
-                print ("equals")
-                searchQuery += " = "
-            case "-gt":
-                print ("greater than")
-                searchQuery += " > "
-            case "-lt":
-                print ("less than")
-                searchQuery += " < "
-            case "-ge":
-                print ("greater than or equal to")
-                searchQuery += " >= "
-            case "-le":
-                print ("less than or equal to")
-                searchQuery += " <= "
-            case "-ne":
-                print ("not equal")
-                searchQuery += " <> "
-            case "-like":
-                print ("like")
-                searchQuery += " LIKE "
-            case _:
-                print ("default")
-
-        searchQuery += f"{value}"
+        myLogSearcher = logSearcher(logToParseDefinition)
+        searchQuery = myLogSearcher.search(args.searchExpression)
 
         logging.info(f"Search query is {searchQuery}")
 
@@ -269,17 +234,21 @@ def main():
         for x in myresult:
             print(x)
     
-    if args.query:
+    if args.command == "query":
         logging.info("Querying the logs")
         mycursor.execute(args.query)
         myresult = mycursor.fetchall()
 
         for x in myresult:
             print(x)
+    
+    if args.command == "purge":
+        logging.info("purging logs")
+
 
     if args.time:
-        end = time.perf_counter()
-        print(f"Time taken: {end - start:.6f} seconds")
+        now = time.perf_counter()
+        print(f"End of program: {now - start:.6f} seconds")
 
 if __name__ == '__main__':
     main()
