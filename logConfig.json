@@ -1,0 +1,65 @@
+{
+    "logName": "postfixlogs",
+    "indexField": {
+        "name": "MessageID",
+        "captureRegex": "[0-9,A-F]{11}",
+        "sqlType": "char(11)",
+        "regexMatchGroup": 0
+    },
+    "logFields": [
+        {
+            "name": "Subject",
+            "captureRegex": "(?<=Subject: ).+(?= from.+\\[.+\\])",
+            "sqlType": "varchar(255)",
+            "regexMatchGroup": 0
+        },
+        {
+            "name": "Sender",
+            "captureRegex": "(?<=[0-9,A-F]{11}: from=<)[^>]+",
+            "sqlType": "varchar(255)",
+            "regexMatchGroup": 0
+        },
+        {
+            "name": "Recipient",
+            "captureRegex": "(?<=[0-9,A-F]{11}: to=<)[^>]+",
+            "sqlType": "varchar(255)",
+            "regexMatchGroup": 0
+        },
+        {
+            "name": "Status",
+            "captureRegex": "(?<=status=)[^ ]+",
+            "sqlType": "varchar(20)",
+            "regexMatchGroup": 0
+        },
+        {
+            "name": "Protocol",
+            "captureRegex": "(?<=proto=)[^ ]+",
+            "sqlType": "varchar(20)",
+            "regexMatchGroup": 0
+        },
+        {
+            "name": "DateTime",
+            "captureRegex": "^[^ ]+",
+            "sqlType": "date",
+            "regexMatchGroup": 0
+        },
+        {
+            "name": "MailServer",
+            "captureRegex": "(?<=^.{32}\\s)[^ ]+",
+            "sqlType": "varchar(255)",
+            "regexMatchGroup": 0
+        },
+        {
+            "name": "ClientName",
+            "captureRegex": "(?<=client=)([^[]+)\\[([^]]+)",
+            "sqlType": "varchar(255)",
+            "regexMatchGroup": 1
+        },
+        {
+            "name": "ClientIP",
+            "captureRegex": "(?<=client=)([^[]+)\\[([^]]+)",
+            "sqlType": "varchar(255)",
+            "regexMatchGroup": 2
+        }
+    ]
+}

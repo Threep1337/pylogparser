@@ -2,3 +2,4 @@ DBHOST=YourDBHostHere
 DBUSER=DBUserName
 DBPASSWORD=DbUserPassword
 DBDATABASE=DbName
+LOGCONFIGJSON=/path/to/logconfigjson.json

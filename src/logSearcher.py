@@ -26,6 +26,10 @@ class logSearcher:
         #parsing run is being performed
         searchQuery = f"SELECT * FROM postfixlogs WHERE {field}"
 
+
+        # Build up a SQL query based on the search string passed in
+        # Search strings should be of the format "field -operator value"
+        # So for example "sender -eq 'someoneelse@mailrelay.onmicrosoft.com'"
         match operator:
             case "-eq":
                 print ("equals")
