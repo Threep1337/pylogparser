@@ -11,11 +11,12 @@ from logDB import logDatabase
 import json
 from tabulate import tabulate
 # TODO
-# Remove the hardcided db table name from logSearcher
+# Remove the hardcoded db table name from logSearcher
 # Make the search results more compact my default
 # Put examples in the commands and better help
 # See if there is a better way to package this
 # See if I can compile the regexes for better performance
+# Compact output should include MessageID, Date, Sender, Recipient, Status, Subject
 
 
 # Classes in project and uses
@@ -36,7 +37,9 @@ def main():
     LOGCONFIGJSON=os.getenv("LOGCONFIGJSON")
 
     #Create argument parser with a message
-    msg = "Python log parser.  This program can ingest logs into a database for searching."
+    msg = "Python log parser.  This program can parse a log file and ingest it into a database." \
+    "The fields to ingest are configurable in the logConfig.json file.  The program can also be used to search through the log entries that are in the log database."
+
     parser = argparse.ArgumentParser(
         description=msg,
         epilog="""Examples:
@@ -85,10 +88,10 @@ def main():
         data = json.load(configFile)
 
     logName = data["logName"]
-    indexField = logField(data["indexField"]["name"],data["indexField"]["captureRegex"],data["indexField"]["sqlType"],data["indexField"]["regexMatchGroup"])
+    indexField = logField(data["indexField"]["name"],data["indexField"]["captureRegex"],data["indexField"]["sqlType"],data["indexField"]["regexMatchGroup"],data["indexField"]["displayInShortOutput"])
     logFields =[]
     for configLogField in data["logFields"]:
-        logFields.append(logField(configLogField["name"],configLogField["captureRegex"],configLogField["sqlType"],configLogField["regexMatchGroup"]))
+        logFields.append(logField(configLogField["name"],configLogField["captureRegex"],configLogField["sqlType"],configLogField["regexMatchGroup"],configLogField["displayInShortOutput"]))
 
     #Create a log definition that will be used by the parser
     logToParseDefinition = logDefinition(logName,indexField,logFields)
@@ -105,8 +108,9 @@ def main():
         postfixLogParser = logParser(logToParseDefinition.identifierField,logToParseDefinition.otherFields,logToParseDefinition.logName)
 
         for file in args.files:
-            print (f"working on {file}")
+            print (f"Parsing log file: {file}")
             postfixLogParser.parseLog(file)
+            print (f"Finished parsing log file: {file}")
 
         if args.time:
             now = time.perf_counter()
@@ -127,8 +131,8 @@ def main():
 
     if args.command == "search":
         logging.info("Starting a search")
-        myLogSearcher = logSearcher(logToParseDefinition,data["logName"])
-        searchQuery = myLogSearcher.search(args.searchExpression)
+        myLogSearcher = logSearcher(logToParseDefinition)
+        searchQuery = myLogSearcher.search(args.searchExpression, True)
         logging.info(f"Search query is {searchQuery}")
         myresult, mydescriptors = logDB.executeLogQuery(searchQuery)
 

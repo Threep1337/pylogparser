@@ -6,13 +6,12 @@ import logging
 class logSearcher:
 
     #the log defintion is needed by this class so that it can validate search fields
-    def __init__(self,logDefinition,dbTableName):
+    def __init__(self,logDefinition):
         self.logDefinition = logDefinition
-        self.dbTableName = dbTableName
         pass
 
     #The search string should be checked and string values should be padded with quotes
-    def search(self,searchString):
+    def search(self,searchString,shortOutput = True):
 
         # Clean white space off the string
         searchString = searchString.strip()
@@ -23,11 +22,26 @@ class logSearcher:
         value = tokens[2]
         logging.info(f"\nfield: {field}\noperator: {operator}\nvalue: {value}")
 
-        #The table name shouldn't be hardcoded like this, need to think of how to re-factor previous code
-        #Either the parser object needs to be present, or I need to think of a better way to have it defined if a non
-        #parsing run is being performed
-        searchQuery = f"SELECT * FROM {self.dbTableName} WHERE {field}"
 
+        #Generate the select statement
+        if (shortOutput):
+            searchQuery = "SELECT "
+            fieldsToSelect=[]
+            if (self.logDefinition.identifierField.displayInShortOutput):
+                fieldsToSelect.append (self.logDefinition.identifierField.name)
+                searchQuery += self.logDefinition.identifierField.name
+
+            for logField in self.logDefinition.otherFields:
+                if (logField.displayInShortOutput):
+                    fieldsToSelect.append (logField.name)
+
+            searchQuery += ",".join(fieldsToSelect)
+            searchQuery += f" FROM {self.logDefinition.logName} WHERE {field}"
+
+        else:
+            searchQuery = f"SELECT * FROM {self.logDefinition.logName} WHERE {field}"
+    
+        print(f"The search query so far is {searchQuery}")
 
         # Build up a SQL query based on the search string passed in
         # Search strings should be of the format "field -operator value"
