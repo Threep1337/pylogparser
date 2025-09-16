@@ -20,7 +20,7 @@ class logParser:
            for line in f:
 
                 logIdentifier = None
-                logIdentifierSearch = re.search(self.identifierField.captureRegex,line)
+                logIdentifierSearch = self.identifierField.compiledCaptureRegex.search(line)
 
                 if logIdentifierSearch:
                     logIdentifier=logIdentifierSearch.group(0)
@@ -34,7 +34,7 @@ class logParser:
 
                         #Skip searching for the field if the entry already has a value, more efficient
                         if not logField.name in self.logEntries[logIdentifier].fields:
-                            logFieldSearch = re.search(logField.captureRegex,line)
+                            logFieldSearch = logField.compiledCaptureRegex.search(line)
 
                             if logFieldSearch:
                                 logFieldValue=logFieldSearch.group(logField.regexMatchGroup)
@@ -42,7 +42,6 @@ class logParser:
                                 self.logEntries[logIdentifier].fields[logField.name] = logFieldValue
                         else:
                             logging.info(f"Skipping searching for field {logField.name}, a value already exists.")
-        #print(self.logEntries)
 
     def getIncompleteLogEntries(self):
 

@@ -11,11 +11,8 @@ from logDB import logDatabase
 import json
 from tabulate import tabulate
 # TODO
-# Remove the hardcoded db table name from logSearcher
-# Make the search results more compact my default
 # Put examples in the commands and better help
 # See if there is a better way to package this
-# See if I can compile the regexes for better performance
 # Compact output should include MessageID, Date, Sender, Recipient, Status, Subject
 
 
@@ -47,9 +44,10 @@ def main():
   python main.py ingestLogs /tmp/SampleLogs.txt /tmp/SampleLogs2.txt
   python main.py search "sender -like '%someone%'"
   python main.py search "sender -eq 'someoneelse@mailrelay.onmicrosoft.com'"
+  python main.py search "sender -eq 'someoneelse@mailrelay.onmicrosoft.com'" -f
   python main.py query "select * from postfixlogs"
   python main.py purge
-""")
+""",formatter_class=argparse.RawTextHelpFormatter)
 
     #Global arguments
     parser.add_argument("-v","--verbose",help= "Set the verbosity level",action="count",default=0)
@@ -66,6 +64,7 @@ def main():
     #Subcommand search
     searchParser = subparsers.add_parser("search", help="Search the logs using a search expression")
     searchParser.add_argument("searchExpression",help="Search expression to run")
+    searchParser.add_argument("-f","--full",help= "Display all fields in search reuslts.",action="store_true")
 
     #Subcommand query
     queryParser = subparsers.add_parser("query", help="Run a direct query against the log DB")
@@ -74,8 +73,9 @@ def main():
     #Subcommand purge
     purgeParser = subparsers.add_parser("purge", help="purge logs into the database")
     
-    args = parser.parse_args()
 
+    args = parser.parse_args()
+    
     if args.time:
         start = time.perf_counter()
 
@@ -132,7 +132,7 @@ def main():
     if args.command == "search":
         logging.info("Starting a search")
         myLogSearcher = logSearcher(logToParseDefinition)
-        searchQuery = myLogSearcher.search(args.searchExpression, True)
+        searchQuery = myLogSearcher.search(args.searchExpression, args.full)
         logging.info(f"Search query is {searchQuery}")
         myresult, mydescriptors = logDB.executeLogQuery(searchQuery)
 

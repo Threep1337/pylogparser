@@ -11,7 +11,7 @@ class logSearcher:
         pass
 
     #The search string should be checked and string values should be padded with quotes
-    def search(self,searchString,shortOutput = True):
+    def search(self,searchString,fullOutput = True):
 
         # Clean white space off the string
         searchString = searchString.strip()
@@ -24,7 +24,7 @@ class logSearcher:
 
 
         #Generate the select statement
-        if (shortOutput):
+        if not fullOutput:
             searchQuery = "SELECT "
             fieldsToSelect=[]
             if (self.logDefinition.identifierField.displayInShortOutput):
