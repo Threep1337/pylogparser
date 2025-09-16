@@ -10,11 +10,8 @@ from logSearcher import logSearcher
 from logDB import logDatabase
 import json
 from tabulate import tabulate
-# TODO
+import sys
 # Put examples in the commands and better help
-# See if there is a better way to package this
-# Compact output should include MessageID, Date, Sender, Recipient, Status, Subject
-
 
 # Classes in project and uses
 # logParser: Performs parsing against a log file and returns a list of logEntry objects
@@ -23,6 +20,13 @@ from tabulate import tabulate
 # logDefinition: Represents the definition of a log file, specifying what the name of the log type is, what its identifier field is, and what other fields exist in it.
 # logSearcher: Validates that the query or search string is valid and then executes a seearch against a logDB
 # logDB: Represents a log database, connects to the DB and validates that the DB exists and is valid, and has logic to create the DB if not.  Requires a logDefintion.
+
+
+def confirm(prompt="Are you sure you want to continue? (y/N): "):
+    response = input(prompt).strip().lower()
+    if response not in ["y", "yes"]:
+        print("Aborted. 🛑")
+        sys.exit(1)
 
 def main(): 
     # Loads variables from .env into os.environ
@@ -58,22 +62,48 @@ def main():
     subparsers = parser.add_subparsers(title="subcommands",dest="command",required=True,)
 
     #Subcommand ingestLogs
-    ingestLogsParser = subparsers.add_parser("ingestLogs", help="Ingest logs into the database")
+    ingestLogsParser = subparsers.add_parser("ingestLogs", 
+                                             help="Ingest raw log files into the database",
+                                             epilog="""Examples:
+  python main.py ingestLogs /tmp/SampleLogs.txt
+  python main.py ingestLogs /tmp/SampleLogs.txt /tmp/SampleLogs2.txt
+  python main.py ingestLogs $(ls /tmp/SampleLogs*)
+""",formatter_class=argparse.RawTextHelpFormatter)
+    
     ingestLogsParser.add_argument("files",nargs="+", help="Log files to parse and ingest to the database")
 
     #Subcommand search
-    searchParser = subparsers.add_parser("search", help="Search the logs using a search expression")
+    searchParser = subparsers.add_parser("search", 
+                                         help="Search the logs using a search expression",
+                                         epilog="""Examples:
+  python main.py search "sender -like '%someone%'"
+  python main.py search "sender -eq 'someoneelse@mailrelay.onmicrosoft.com'"
+  python main.py search "sender -eq 'someoneelse@mailrelay.onmicrosoft.com'" -f
+  python main.py search "DateTime -ge '2025-08-12'"
+
+""",formatter_class=argparse.RawTextHelpFormatter)
+    
     searchParser.add_argument("searchExpression",help="Search expression to run")
     searchParser.add_argument("-f","--full",help= "Display all fields in search reuslts.",action="store_true")
 
     #Subcommand query
-    queryParser = subparsers.add_parser("query", help="Run a direct query against the log DB")
+    queryParser = subparsers.add_parser("query",
+                                        help="Run a direct query against the log DB",
+                                        epilog="""Examples:
+  python main.py query "select * from postfixlogs"
+  python main.py query "select * from postfixlogs where sender = 'someoneelse@mailrelay.onmicrosoft.com'"
+  python main.py query "select * from postfixlogs where DateTime BETWEEN '2025-08-12' AND '2025-08-13'"
+""",formatter_class=argparse.RawTextHelpFormatter)
+    
     queryParser.add_argument("queryString",help="The Query string to run")
 
     #Subcommand purge
-    purgeParser = subparsers.add_parser("purge", help="purge logs into the database")
+    purgeParser = subparsers.add_parser("purge", 
+                                        help="purge logs into the database",
+                                        epilog="""Examples:
+  python main.py purge
+""",formatter_class=argparse.RawTextHelpFormatter)
     
-
     args = parser.parse_args()
     
     if args.time:
@@ -138,17 +168,20 @@ def main():
 
         # Get column names for nice headers
         headers = [description[0] for description in mydescriptors]
-
         # Display results in a table
         print(tabulate(myresult, headers=headers, tablefmt="github"))
     
     if args.command == "query":
         logging.info("Querying the logs")
-        myresult = logDB.executeLogQuery(args.queryString)
-        for x in myresult:
-            print(x)
+        myresult, mydescriptors = logDB.executeLogQuery(args.queryString)
+
+        # Get column names for nice headers
+        headers = [description[0] for description in mydescriptors]
+        # Display results in a table
+        print(tabulate(myresult, headers=headers, tablefmt="github"))
 
     if args.command == "purge":
+        confirm (f"This will delete everything in the database table {logDB.logToParseDefinition.logName}. Are you sure you want to continue? (y/N): ")
         logging.info("purging logs")
         logDB.purgeLogs()
 
