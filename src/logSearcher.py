@@ -6,7 +6,9 @@ import logging
 class logSearcher:
 
     #the log defintion is needed by this class so that it can validate search fields
-    def __init__(self,logDefinition):
+    def __init__(self,logDefinition,dbTableName):
+        self.logDefinition = logDefinition
+        self.dbTableName = dbTableName
         pass
 
     #The search string should be checked and string values should be padded with quotes
@@ -24,7 +26,7 @@ class logSearcher:
         #The table name shouldn't be hardcoded like this, need to think of how to re-factor previous code
         #Either the parser object needs to be present, or I need to think of a better way to have it defined if a non
         #parsing run is being performed
-        searchQuery = f"SELECT * FROM postfixlogs WHERE {field}"
+        searchQuery = f"SELECT * FROM {self.dbTableName} WHERE {field}"
 
 
         # Build up a SQL query based on the search string passed in

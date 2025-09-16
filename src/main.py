@@ -9,6 +9,14 @@ from logDefinition import logDefinition
 from logSearcher import logSearcher
 from logDB import logDatabase
 import json
+from tabulate import tabulate
+# TODO
+# Remove the hardcided db table name from logSearcher
+# Make the search results more compact my default
+# Put examples in the commands and better help
+# See if there is a better way to package this
+# See if I can compile the regexes for better performance
+
 
 # Classes in project and uses
 # logParser: Performs parsing against a log file and returns a list of logEntry objects
@@ -29,7 +37,16 @@ def main():
 
     #Create argument parser with a message
     msg = "Python log parser.  This program can ingest logs into a database for searching."
-    parser = argparse.ArgumentParser(description=msg)
+    parser = argparse.ArgumentParser(
+        description=msg,
+        epilog="""Examples:
+  python main.py ingestLogs /tmp/SampleLogs.txt
+  python main.py ingestLogs /tmp/SampleLogs.txt /tmp/SampleLogs2.txt
+  python main.py search "sender -like '%someone%'"
+  python main.py search "sender -eq 'someoneelse@mailrelay.onmicrosoft.com'"
+  python main.py query "select * from postfixlogs"
+  python main.py purge
+""")
 
     #Global arguments
     parser.add_argument("-v","--verbose",help= "Set the verbosity level",action="count",default=0)
@@ -37,7 +54,7 @@ def main():
 
     #Make the command use subcommandss
     #Add subcommands to the script
-    subparsers = parser.add_subparsers(title="subcommands",dest="command",required=True)
+    subparsers = parser.add_subparsers(title="subcommands",dest="command",required=True,)
 
     #Subcommand ingestLogs
     ingestLogsParser = subparsers.add_parser("ingestLogs", help="Ingest logs into the database")
@@ -110,12 +127,16 @@ def main():
 
     if args.command == "search":
         logging.info("Starting a search")
-        myLogSearcher = logSearcher(logToParseDefinition)
+        myLogSearcher = logSearcher(logToParseDefinition,data["logName"])
         searchQuery = myLogSearcher.search(args.searchExpression)
         logging.info(f"Search query is {searchQuery}")
-        myresult = logDB.executeLogQuery(searchQuery)
-        for x in myresult:
-            print(x)
+        myresult, mydescriptors = logDB.executeLogQuery(searchQuery)
+
+        # Get column names for nice headers
+        headers = [description[0] for description in mydescriptors]
+
+        # Display results in a table
+        print(tabulate(myresult, headers=headers, tablefmt="github"))
     
     if args.command == "query":
         logging.info("Querying the logs")

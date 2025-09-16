@@ -27,7 +27,7 @@ class logDatabase:
 
     def executeLogQuery(self,query):
         self.mycursor.execute(query)
-        return self.mycursor.fetchall()
+        return self.mycursor.fetchall(), self.mycursor.description
 
     def checkIfLogTableExists(self):
 
