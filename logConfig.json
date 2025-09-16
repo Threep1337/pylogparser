@@ -34,7 +34,7 @@
             "captureRegex": "(?<=status=)[^ ]+",
             "sqlType": "varchar(20)",
             "regexMatchGroup": 0,
-            "displayInShortOutput": false
+            "displayInShortOutput": true
         },
         {
             "name": "Protocol",
