@@ -41,32 +41,32 @@ class logSearcher:
         else:
             searchQuery = f"SELECT * FROM {self.logDefinition.logName} WHERE {field}"
     
-        print(f"The search query so far is {searchQuery}")
+        #print(f"The search query so far is {searchQuery}")
 
         # Build up a SQL query based on the search string passed in
         # Search strings should be of the format "field -operator value"
         # So for example "sender -eq 'someoneelse@mailrelay.onmicrosoft.com'"
         match operator:
             case "-eq":
-                print ("equals")
+                #print ("equals")
                 searchQuery += " = "
             case "-gt":
-                print ("greater than")
+                #print ("greater than")
                 searchQuery += " > "
             case "-lt":
-                print ("less than")
+                #print ("less than")
                 searchQuery += " < "
             case "-ge":
-                print ("greater than or equal to")
+                #print ("greater than or equal to")
                 searchQuery += " >= "
             case "-le":
-                print ("less than or equal to")
+                #print ("less than or equal to")
                 searchQuery += " <= "
             case "-ne":
-                print ("not equal")
+                #print ("not equal")
                 searchQuery += " <> "
             case "-like":
-                print ("like")
+                #print ("like")
                 searchQuery += " LIKE "
             case _:
                 print ("default")
