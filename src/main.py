@@ -11,7 +11,10 @@ from logDB import logDatabase
 import json
 from tabulate import tabulate
 import sys
-# Put examples in the commands and better help
+
+# Future improvements
+# Add methods other than regex to parse text, like splitting on whitespace for example
+# Allow the json config file to be passed into the command
 
 # Classes in project and uses
 # logParser: Performs parsing against a log file and returns a list of logEntry objects
