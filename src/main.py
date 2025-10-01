@@ -15,6 +15,7 @@ import sys
 # Future improvements
 # Add methods other than regex to parse text, like splitting on whitespace for example
 # Allow the json config file to be passed into the command
+# Allow for optional fields for partial messages
 
 # Classes in project and uses
 # logParser: Performs parsing against a log file and returns a list of logEntry objects
